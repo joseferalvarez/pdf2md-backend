@@ -1,7 +1,6 @@
 from fastapi import FastAPI, UploadFile
 from fastapi.concurrency import run_in_threadpool
 import tempfile
-import os
 import pymupdf4llm
 
 app = FastAPI()
