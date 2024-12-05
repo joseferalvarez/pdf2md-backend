@@ -1,0 +1,7 @@
+---
+services:
+  pdf2md-back:
+    image: pdf2md-back:latest
+    container_name: pdf2md-back
+    ports:
+      - 8000:80
