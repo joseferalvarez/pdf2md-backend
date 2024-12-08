@@ -1,7 +1,10 @@
 ---
 services:
   pdf2md-back:
-    image: pdf2md-back:latest
+    image: ${GHCR_PATH}
     container_name: pdf2md-back
+    restart: unless-stopped
+    environment:
+      - API_ENV=${API_ENV}
     ports:
       - 8000:80
