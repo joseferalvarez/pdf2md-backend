@@ -11,10 +11,7 @@ app = FastAPI(root_path="/api")
 
 api_env = os.getenv("API_ENV", "DEV")
 
-origins = [
-  "http://127.0.0.1:8000",
-  "http://localhost:8000",
-]
+origins = ["*"]
 
 if api_env == "PROD":
   origins = ["https://pdf2md.joseferalvarez.dev"]
