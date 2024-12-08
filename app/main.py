@@ -7,7 +7,7 @@ import pymupdf4llm
 import requests
 import os
 
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 api_env = os.getenv("API_ENV", "DEV")
 
