@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from fastapi.concurrency import run_in_threadpool
 import tempfile
 import pymupdf4llm
+from pymupdf import Document
 import requests
 import os
 
@@ -29,39 +30,34 @@ class BaseURL(BaseModel):
 
 @app.post("/v1/file/")
 async def upload_file(file: UploadFile):
-  file_bytes = await file.read()
+  pdf_content = await file.read()
 
   if len(file.filename.split(".")) < 2 or file.filename.split(".")[1] != "pdf":
       return {"file": "You can only upload pdf files"}
 
-  with tempfile.NamedTemporaryFile(delete=True, mode="w+b", suffix="pdf") as temp_file:
+  md_content = get_md_content(pdf_content=pdf_content)
 
-    if not temp_file or not temp_file.name:
-      return {"file": "The file can not be converted"}
-    
-    temp_file.write(file_bytes)
-
-    md_file = await run_in_threadpool(pymupdf4llm.to_markdown, temp_file.name)
-    return {"file": md_file.encode()}
-  
-  return {"file": "The file can not be converted"}
+  return {"file": md_content}
 
 @app.post("/v1/url/")
 async def download_file(req: BaseURL):
   res = requests.get(req.url)
   pdf_content = res.content
 
-  with tempfile.NamedTemporaryFile(delete=True, mode="w+b", suffix="pdf") as temp_file:
+  md_content = get_md_content(pdf_content=pdf_content)
 
-    if not temp_file or not temp_file.name:
-      return {"file": "The file can not be converted"}
-    
-    temp_file.write(pdf_content)
-
-    md_file = await run_in_threadpool(pymupdf4llm.to_markdown, temp_file.name)
-    return {"file": md_file.encode()}
+  return {"file": md_content}
   
-  return {"file": "The file can not be extracted"}
+
+def get_md_content(pdf_content):
+  try:
+    pdf_document = Document(filename='doc.pdf', stream=pdf_content)
+
+    md_file = pymupdf4llm.to_markdown(pdf_document)
+
+    return md_file.encode()
+  except:
+    return "Ha habido un error al convertir el pdf"
 
 
 
